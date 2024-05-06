@@ -1,10 +1,11 @@
 const express = require('express');
-const cors = require('cors'); // Import the cors middleware
+const cors = require('cors');
+const add = require('./calculator'); // Import the add function from calculate.js
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(cors()); // Use cors middleware to allow cross-origin requests
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
@@ -12,11 +13,7 @@ app.get('/', (req, res) => {
 
 app.post('/calculate', (req, res) => {
   const { num1, num2 } = req.body;
-  let result;
-  console.log(req.body);
-
-  result = parseFloat(num1) + parseFloat(num2);
-
+  const result = add(parseFloat(num1), parseFloat(num2)); // Use the add function
   res.send({ result });
 });
 
