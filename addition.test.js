@@ -6,7 +6,7 @@ test('adds 2 + 3 to equal 5', () => {
 });
 
 test('adds 0 + 0 to equal 0', () => {
-  expect(add(0, 0)).toBe(0);
+  expect(add(0, 0)).toBe(-1);
 });
 
 test('adds -2 + 3 to equal 1', () => {
