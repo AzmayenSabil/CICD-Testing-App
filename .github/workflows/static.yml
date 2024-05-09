@@ -87,7 +87,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  run-tests:
+  run-unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -98,18 +98,25 @@ jobs:
           node-version: '14'
       - name: Install dependencies
         run: npm install
+      - name: Run unit tests
+        run: npm run test:unit
 
-      # Determine test script based on event type
-      - name: Determine test script
-        id: determine-test-script
-        run: echo "::set-output name=test_script::$(if [ ${{ github.event_name }} == 'push' ]; then echo 'test:unit'; else echo 'test:integration'; fi)"
-
-      # Run the determined test script
-      - name: Run tests
-        run: npm run ${{ steps.determine-test-script.outputs.test_script }}
+  run-integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: npm install
+      - name: Run integration tests
+        run: npm run test:integration
 
   deploy:
-    needs: run-tests
+    needs: [run-unit-tests, run-integration-tests]
     if: success()
     environment:
       name: github-pages
