@@ -2,9 +2,13 @@
 # name: Deploy static content to Pages
 
 # on:
+#   # on: [push, pull_request]
 #   # Runs on pushes targeting the default branch
 #   push:
 #     branches: ["main"]
+#   # pull_request:
+#   #   branches:
+#   #     - master
 
 #   # Allows you to run this workflow manually from the Actions tab
 #   workflow_dispatch:
@@ -22,8 +26,24 @@
 #   cancel-in-progress: false
 
 # jobs:
+#   # Run tests job
+#   run-tests:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: '14'
+#       - name: Install dependencies
+#         run: npm install
+#       - name: Run tests
+#         run: npm test
+
 #   # Single deploy job since we're just deploying
 #   deploy:
+#     needs: run-tests # Ensure that tests are run before deploying
 #     environment:
 #       name: github-pages
 #       url: ${{ steps.deployment.outputs.page_url }}
@@ -41,6 +61,8 @@
 #       - name: Deploy to GitHub Pages
 #         id: deployment
 #         uses: actions/deploy-pages@v4
+
+
 
 
 # Simple workflow for deploying static content to GitHub Pages
@@ -67,8 +89,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Run tests job
-  run-tests:
+  # Run unit tests job
+  run-unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -79,12 +101,27 @@ jobs:
           node-version: '14'
       - name: Install dependencies
         run: npm install
-      - name: Run tests
-        run: npm test
+      - name: Run unit tests
+        run: npm run test:unit
+
+  # Run integration tests job
+  run-integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: npm install
+      - name: Run integration tests
+        run: npm run test:integration
 
   # Single deploy job since we're just deploying
   deploy:
-    needs: run-tests # Ensure that tests are run before deploying
+    needs: [run-unit-tests, run-integration-tests] # Ensure that both unit and integration tests are run before deploying
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
